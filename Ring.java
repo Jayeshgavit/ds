@@ -46,3 +46,47 @@ public class Ring {
     }
 }
 
+
+'''
+import java.util.Scanner;
+
+public class SimpleRingElection {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input: Number of processes
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] ids = new int[n];  // Stores process IDs
+
+        // Input: Process IDs
+        System.out.println("Enter process IDs:");
+        for (int i = 0; i < n; i++) {
+            ids[i] = sc.nextInt();
+        }
+
+        // Input: Initiator process index
+        System.out.print("Enter initiator index (0 to " + (n - 1) + "): ");
+        int init = sc.nextInt();
+
+        int maxId = ids[init];  // Start election
+        System.out.println("\nProcess " + ids[init] + " starts the election.");
+
+        int current = (init + 1) % n;
+
+        // Message circulates around the ring
+        while (current != init) {
+            System.out.println("Process " + ids[current] + " receives the message.");
+            if (ids[current] > maxId) {
+                maxId = ids[current];  // Update max if higher ID is found
+            }
+            current = (current + 1) % n;
+        }
+
+        // New coordinator
+        System.out.println("\nNew coordinator is Process " + maxId);
+        sc.close();
+    }
+}
+'''
