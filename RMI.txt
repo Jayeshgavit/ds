@@ -1,0 +1,66 @@
+//AddServerIntf.java
+
+import java.rmi.*;
+public interface AddServerIntf extends Remote {
+double add(double d1, double d2) throws RemoteException;
+}
+
+
+//AddServerImpl.java
+
+
+import java.rmi.*;
+import java.rmi.server.*;
+public class AddServerImpl extends UnicastRemoteObject implements
+AddServerIntf {
+public AddServerImpl() throws RemoteException {
+}
+public double add(double d1, double d2) throws RemoteException { return d1 + d2;
+}
+}
+
+
+//AddServer.java
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+public class AddServer {
+    public static void main(String args[]) {
+        try {
+            // Create the server implementation
+            AddServerImpl addServerImpl = new AddServerImpl();
+            // Bind the implementation to the RMI registry
+            Naming.rebind("//127.0.0.1/AddServer", addServerImpl);
+            System.out.println("Server is ready and waiting for client requests...");
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
+        }
+    }
+}
+
+
+//AddClient.java
+
+import java.rmi.*;
+
+public class AddClient {
+    public static void main(String args[]) {
+        try {
+            String addServerURL = "rmi://127.0.0.1/AddServer";
+            AddServerIntf addServerIntf = (AddServerIntf) Naming.lookup(addServerURL);
+
+            // Use args[0] for the first argument and args[1] for the second argument
+            double d1 = Double.valueOf(args[0]);
+            double d2 = Double.valueOf(args[1]);
+
+            System.out.println("The first number is: " + d1);
+            System.out.println("The second number is: " + d2);
+            System.out.println("The sum is: " + addServerIntf.add(d1, d2));
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
+        }
+    }
+}
+
+
