@@ -1,0 +1,98 @@
+//ReverseModule.idl
+module ReverseModule {
+  interface Reverse {
+    string reverse_string(in string str);
+  };
+};
+
+
+
+// ReverseImpl.java
+
+import ReverseModule.ReversePOA;
+
+class ReverseImpl extends ReversePOA {
+  public String reverse_string(String name) {
+    return "Server Send " + new StringBuilder(name).reverse();
+  }
+}
+
+
+// ReverseServer.java
+
+import ReverseModule.*;
+import org.omg.CosNaming.*;
+import org.omg.CORBA.*;
+import org.omg.PortableServer.*;
+
+public class ReverseServer {
+  public static void main(String[] args) {
+    try {
+      ORB orb = ORB.init(args, null);
+      POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+      rootPOA.the_POAManager().activate();
+
+      ReverseImpl reverseImpl = new ReverseImpl();
+      org.omg.CORBA.Object ref = rootPOA.servant_to_reference(reverseImpl);
+      Reverse href = ReverseHelper.narrow(ref);
+
+      NamingContextExt ncRef = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+      ncRef.rebind(ncRef.to_name("Reverse"), href);
+      System.out.println("Reverse Server ready...");
+      orb.run();
+      
+    } 
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+}
+
+
+//ReverseClient.java
+
+import ReverseModule.*;
+import org.omg.CosNaming.*;
+import org.omg.CORBA.*;
+import java.io.*;
+
+public class ReverseClient {
+  public static void main(String[] args) {
+    try {
+      ORB orb = orb.init(args, null);
+      NamingContextExt ncRef = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+      Reverse reverse = ReverseHelper.narrow(ncRef.resolve_str("Reverse"));
+
+      System.out.print("Enter String = ");
+      String input = new BufferedReader(new InputStreamReader(System.in)).readLine();
+      System.out.println(reverse.reverse_string(input));
+    } 
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+}
+
+
+
+ORB:
+PS C:\Users\deepa\OneDrive\Desktop\LP-V\practical-2> idlj -fall ReverseModule.idl
+PS C:\Users\deepa\OneDrive\Desktop\LP-V\practical-2> javac *.java ReverseModule/*.java
+Note: ReverseModule\ReversePOA.java uses unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+PS C:\Users\deepa\OneDrive\Desktop\LP-V\practical-2> orbd -ORBInitialPort 1050
+
+
+
+Server:
+
+PS C:\Users\deepa\OneDrive\Desktop\LP-V\practical-2> java ReverseServer -ORBInitialPort 1050 -ORBInitialHost localhost
+Reverse Object Created
+Reverse Server ready and waiting...
+
+
+Client:
+PS C:\Users\deepa\OneDrive\Desktop\LP-V\practical-2> java ReverseClient -ORBInitialPort 1050 -ORBInitialHost localhost
+Enter String: Deepak
+Server Send kapeeD
+PS C:\Users\deepa\OneDrive\Desktop\LP-V\practical-2> 
